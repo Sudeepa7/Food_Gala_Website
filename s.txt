@@ -1,0 +1,211 @@
+mongoimport --uri mongodb+srv://foodgala:Sud2617#@cluster0.wd0q6ea.mongodb.net/foodgalamern --collection food_items --type jsonArray --file "C:\Users\User\Documents\foodgala\foodData2.json"
+
+
+
+mongoimport --uri mongodb+srv://foodgala:Sud2617#@cluster0.wd0q6ea.mongodb.net/foodgalamern --collection food_items --type jsonArray --file "C:\Users\User\Documents\foodgala\foodData2.json"
+
+
+
+C:\mongodb-database-tools-windows-x86_64-100.7.0\mongodb-database-tools-windows-x86_64-100.7.0\bin>mongoimport --uri mongodb+srv://foodgala:Sud2617#@cluster0.wd0q6ea.mongodb.net/foodgalamern --collection food_items --jsonArray --file "C:\Users\User\Documents\foodgala\foodCategory.json"
+2023-03-14T13:09:24.617+0530    connected to: mongodb+srv://[**REDACTED**]@cluster0.wd0q6ea.mongodb.net/foodgalamern
+2023-03-14T13:09:25.253+0530    3 document(s) imported successfully. 0 document(s) failed to import.
+
+C:\mongodb-database-tools-windows-x86_64-100.7.0\mongodb-database-tools-windows-x86_64-100.7.0\bin>mongoimport --uri mongodb+srv://foodgala:Sud2617#@cluster0.wd0q6ea.mongodb.net/foodgalamern --collection food_category --jsonArray --file "C:\Users\User\Documents\foodgala\foodCategory.json"
+-------------------------------------------------------------------------------------------------------
+db.js
+
+const mongoose = require('mongoose');
+
+const mongoURI = 'mongodb+srv://foodgala:' + encodeURIComponent('Sud2617#') + '@cluster0.wd0q6ea.mongodb.net/foodgalamern?retryWrites=true&w=majority';
+
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+    console.log('MongoDB connected...');
+  } catch (error) {
+    console.error(error.message);
+    process.exit(1);
+  }
+};
+
+module.exports = connectDB;
+--------------------------------------------------------------------------------------------------------------const mongoose = require('mongoose');
+
+const mongoose = require('mongoose');
+
+const mongoURI = 'mongodb+srv://foodgala:Sud2617#@cluster0.wd0q6ea.mongodb.net/foogalamern?retryWrites=true&w=majority';
+const mongoDB = async()=>{
+    await mongoose.connect(mongoURI,{useNewUrlParser:true},async(err,result)=>{
+        if(err) console.log("---",err)
+        else{
+            console.log("connected");
+            const fetched_data = await mongoose.connection.db.collection("food_items");
+            fetched_data.find({}).toArrays(function(err,data){
+                if (err) console.log(err);
+                else console.log(data);
+            })
+        }
+    });
+}
+module.exports = mongoDB; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useEffect, useState ,useRef} from "react";
+import {useDispatchCart,useCart} from "./ContextReducer"
+import { useNavigate } from 'react-router-dom'
+
+export default function Card(props) {
+  let data = useCart();
+
+  let navigate = useNavigate()
+  const [qty, setQty] = useState(1)
+  const [size, setSize] = useState("")
+  const priceRef = useRef();
+  // const [btnEnable, setBtnEnable] = useState(false);
+  // let totval = 0
+  // let price = Object.values(options).map((value) => {
+  //   return parseInt(value, 10);
+  // });
+  let options = props.options;
+  let priceOptions = Object.keys(options);
+  let foodItem = props.item;
+  const dispatch = useDispatchCart();
+  const handleClick = () => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login")
+    }
+  }
+  const handleQty = (e) => {
+    setQty(e.target.value);
+  }
+  const handleOptions = (e) => {
+    setSize(e.target.value);
+  }
+  const handleAddToCart = async () => {
+    let food = []
+    for (const item of data) {
+      if (item.id === foodItem._id) {
+        food = item;
+
+        break;
+      }
+    }
+    console.log(food)
+    console.log(new Date())
+    if (food !== []) {
+      if (food.size === size) {
+        await dispatch({ type: "UPDATE", id: foodItem._id, price: finalPrice, qty: qty })
+        return
+      }
+      else if (food.size !== size) {
+        await dispatch({ type: "ADD", id: foodItem._id, name: foodItem.name, price: finalPrice, qty: qty, size: size,img: props.ImgSrc })
+        console.log("Size different so simply ADD one more to the list")
+        return
+      }
+      return
+    }
+
+  await dispatch({ type: "ADD", id: foodItem._id, name: foodItem.name, price: finalPrice, qty: qty, size: size })
+
+
+  // setBtnEnable(true)
+
+}
+
+useEffect(() => {
+  setSize(priceRef.current.value)
+}, [])
+
+// useEffect(()=>{
+// checkBtn();
+//   },[data])
+
+
+  let finalPrice = qty * parseInt(options[size]);   //This is where Price is changing
+  // totval += finalPrice;
+  // console.log(totval)
+
+  const cardStyle = {
+    width: "18rem",
+    maxHeight: "360px",
+    border: "2px solid #635402",
+    transform: hovered ? "translate(3px, 3px)" : "none",
+    transition: "transform 0.2s ease-out"
+  };
+
+  return (
+    <div>
+      <div>
+        <div
+          className="card mt-3"
+          style={cardStyle}
+          /* onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)} */
+        >
+          <img
+            src={props.ImgSrc}
+            className="card-img-top"
+            alt="..."
+            style={{ height: "150px", objectFit: "cover" }}
+          />
+          <div className="card-body">
+            <h5 className="card-title">{props.foodName}</h5>
+            {/* <p className="card-text">Some quick example text </p> */}
+            <div className="container w-100">
+              <select
+                className="m-2 h-100 rounded "
+                onClick={handleClick} onChange={handleQty}
+                style={{ backgroundColor: "#F8D105" }}
+              >
+                {Array.from(Array(5), (e, i) => {
+                  return (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1}
+                    </option>
+                  )
+                })}
+              </select>
+
+              <select
+                className="m-2 h-100  rounded" onClick={handleClick} onChange={handleOptions}
+                style={{ backgroundColor: "#F8D105" }}
+                ref={priceRef}
+              >
+                {priceOptions.map((i) => {
+                  return (
+                    <option key={i} value={i}>
+                      {i}
+                    </option>
+                  );
+                })}
+              </select>
+              <div className="d-inline h-100 fs-6">Rs.{finalPrice}/=</div>
+            </div>
+
+            <hr></hr>
+            <button
+              className={"btn justify-center text-white ms-2"}
+              style={{ backgroundColor: "#635402" }}
+              onClick={handleAddToCart}
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
